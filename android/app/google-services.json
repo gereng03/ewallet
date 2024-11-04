@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "765703056771",
+    "project_id": "wallet-9d969",
+    "storage_bucket": "wallet-9d969.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:765703056771:android:fd6c03e8d159f6058a5ab6",
+        "android_client_info": {
+          "package_name": "com.gereng.ewallet"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "765703056771-grssubijds4fjeeh0d4tsqiqapd9pp4m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.gereng.ewallet",
+            "certificate_hash": "cc0c560091330c992c460e835fc3333c9dd57f90"
+          }
+        },
+        {
+          "client_id": "765703056771-3ssimede3gdt1b32n87r1ql6i69r3lt8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCr8e1W01peiqh2KWG4ZlxRgFZkwB2fhUw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "765703056771-3ssimede3gdt1b32n87r1ql6i69r3lt8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
