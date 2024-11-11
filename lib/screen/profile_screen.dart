@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:zalo2222/screen/personel_screen.dart';
+import '../screen/intro_screen.dart';
 import '../service/auth_service.dart';
 import '../service/navigation_service.dart';
 import '../service/notification_service.dart';
@@ -61,6 +62,14 @@ class ProfileScreen extends StatelessWidget {
         // Close loading indicator
         if (context.mounted) {
           Navigator.of(context).pop();
+        }
+
+        // Navigate to intro screen and remove all previous routes
+        if (context.mounted) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const IntroScreen()),
+                (Route<dynamic> route) => false,
+          );
         }
       } catch (e) {
         // Close loading indicator if still showing

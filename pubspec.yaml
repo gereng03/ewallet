@@ -72,7 +72,6 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-     - assets/promo.jpg
      - assets/logos/vinaphone.png
      - assets/logos/viettel.png
      - assets/logos/mobifone.png
