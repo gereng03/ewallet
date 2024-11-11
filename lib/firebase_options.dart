@@ -57,6 +57,8 @@ class DefaultFirebaseOptions {
     appId: '1:765703056771:android:fd6c03e8d159f6058a5ab6',
     messagingSenderId: '765703056771',
     projectId: 'wallet-9d969',
+    databaseURL: 'https://wallet-9d969-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'wallet-9d969.firebasestorage.app',
   );
+
 }

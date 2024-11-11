@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
+import '../service/wallet_service.dart';
 
 class SignUpScreen extends StatefulWidget {
+  const SignUpScreen({super.key});
+
   @override
   _SignUpScreenState createState() => _SignUpScreenState();
 }
@@ -15,44 +17,82 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
 
   Future<void> _signUp() async {
     if (_formKey.currentState!.validate()) {
+      setState(() => _isLoading = true);
       try {
+        print('Starting signup process');
+        // Create user account
         UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: _emailController.text,
+          email: _emailController.text.trim(),
           password: _passwordController.text,
         );
 
+        print('User account created successfully');
+
         // Update user profile with name
         await userCredential.user!.updateDisplayName(_nameController.text);
+        print('User profile updated with name');
+
+        // Create wallet for the new user
+        final walletService = WalletService();
+        await walletService.createWallet(userCredential.user!.uid);
+        print('Wallet created successfully');
+
+        if (!mounted) return;
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Đăng ký thành công!')),
         );
+
         // Navigate to home screen or login screen
+        Navigator.pushReplacementNamed(context, '/main'); // Replace with your route
+
       } on FirebaseAuthException catch (e) {
+        print('FirebaseAuthException: ${e.code} - ${e.message}');
+        if (!mounted) return;
+
         String errorMessage;
         if (e.code == 'weak-password') {
           errorMessage = 'Mật khẩu quá yếu.';
         } else if (e.code == 'email-already-in-use') {
           errorMessage = 'Email đã được sử dụng.';
         } else {
-          errorMessage = 'Đã xảy ra lỗi. Vui lòng thử lại.';
+          errorMessage = 'Đã xảy ra lỗi: ${e.message}';
         }
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(errorMessage)),
         );
       } catch (e) {
+        print('General error during signup: $e');
+        if (!mounted) return;
+
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Đã xảy ra lỗi không xác định.')),
+          SnackBar(content: Text('Đã xảy ra lỗi: $e')),
         );
+      } finally {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Rest of the build method remains the same
     return Scaffold(
       backgroundColor: Colors.green,
       body: Column(
@@ -221,24 +261,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           controller: _confirmPasswordController,
                           obscureText: _obscureText,
                           decoration: InputDecoration(
-                            hintText: 'Nhập lại mật khẩu',
+                            hintText: 'Xác nhận mật khẩu',
                             hintStyle: TextStyle(color: Colors.grey[400]),
                             filled: true,
                             fillColor: Colors.grey[200],
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
                               borderSide: BorderSide.none,
-                            ),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscureText ? Icons.visibility_off : Icons.visibility,
-                                color: Colors.grey,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  _obscureText = !_obscureText;
-                                });
-                              },
                             ),
                           ),
                           validator: (value) {
@@ -251,9 +280,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 24),
                         ElevatedButton(
-                          onPressed: _signUp,
+                          onPressed: _isLoading ? null : _signUp,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green,
                             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -261,9 +290,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                           ),
-                          child: const Text('ĐĂNG KÝ',
-                              style: TextStyle(color: Colors.white)
-                          ),
+                          child: _isLoading
+                              ? const CircularProgressIndicator(color: Colors.white)
+                              : const Text('ĐĂNG KÝ',
+                              style: TextStyle(color: Colors.white)),
                         ),
                       ],
                     ),

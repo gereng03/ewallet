@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:zalo2222/screen/main_screen.dart';
-
 import '../service/auth_service.dart';
+import '../service/wallet_service.dart';
 import 'forgot_PW_screen.dart';
 import 'signup_screen.dart';
-
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -96,7 +95,15 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = true);
 
     try {
-      await _authService.signInWithGoogle();
+      final UserCredential userCredential = await _authService.signInWithGoogle();
+
+      // Check if this is a new user
+      if (userCredential.additionalUserInfo?.isNewUser ?? false) {
+        // Create wallet for the new user
+        final walletService = WalletService();
+        await walletService.createWallet(userCredential.user!.uid);
+      }
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const MainScreen()),
@@ -231,17 +238,20 @@ class _LoginScreenState extends State<LoginScreen> {
                                   });
                                 },
                               ),
-                              const Text('Lưu tài khoản', style: TextStyle(fontSize: 12)),
+                              const Text('Lưu tài khoản',
+                                  style: TextStyle(fontSize: 12)),
                             ],
                           ),
                           TextButton(
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => ForgotPasswordScreen()),
+                                MaterialPageRoute(
+                                    builder: (context) => ForgotPasswordScreen()),
                               );
                             },
-                            child: const Text('Quên mật khẩu?', style: TextStyle(color: Colors.green, fontSize: 12)),
+                            child: const Text('Quên mật khẩu?',
+                                style: TextStyle(color: Colors.green, fontSize: 12)),
                           ),
                         ],
                       ),
@@ -264,15 +274,19 @@ class _LoginScreenState extends State<LoginScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text("Chưa có tài khoản? ", style: TextStyle(fontSize: 12)),
+                          const Text("Chưa có tài khoản? ",
+                              style: TextStyle(fontSize: 12)),
                           TextButton(
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => SignUpScreen()),
+                                MaterialPageRoute(
+                                    builder: (context) => SignUpScreen()),
                               );
                             },
-                            child: const Text('Đăng ký ngay', style: TextStyle(color: Colors.green, fontSize: 12)),
+                            child: const Text('Đăng ký ngay',
+                                style:
+                                TextStyle(color: Colors.green, fontSize: 12)),
                           ),
                         ],
                       ),
@@ -289,7 +303,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 20),
                       ElevatedButton.icon(
-                        icon: Image.asset('assets/logos/google_logo.png', height: 24),
+                        icon: Image.asset('assets/logos/google_logo.png',
+                            height: 24),
                         label: const Text('Đăng nhập với Google'),
                         onPressed: _isLoading ? null : _signInWithGoogle,
                         style: ElevatedButton.styleFrom(
